@@ -1,0 +1,33 @@
+# Dependencias instaladas
+node_modules
+npm-debug.log*
+
+# Build output
+.next
+out
+
+# Archivos de desarrollo
+.git
+.gitignore
+.eslintrc.json
+*.md
+!README.md
+
+# Variables de entorno locales (se deben inyectar en runtime)
+.env*.local
+.env
+
+# Config de desarrollo
+.vscode
+.idea
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Terraform (no es parte de la imagen Docker)
+infraestructura-multicloud/
+
+# Misc
+.DS_Store
+Thumbs.db
