@@ -23,6 +23,7 @@ export function InputPanel() {
     isLoading,
     setLoading,
     setError,
+    setCurrentPrompt,
     setArchitectureData,
     reset,
     architectureData,
@@ -35,6 +36,7 @@ export function InputPanel() {
     if (!prompt.trim() || isLoading || pendingRef.current) return;
     pendingRef.current = true;
 
+    setCurrentPrompt(prompt.trim());
     setLoading(true);
     setError(null);
 

@@ -314,7 +314,9 @@ function generateOutputsTf(
 ): string {
   const lines: string[] = [
     `# ============================================================
-# outputs.tf — Valores de salida de la infraestructura
+# outputs.tf — Metadatos de la arquitectura seleccionada
+# Nota: los outputs de recursos específicos deben añadirse en
+#       main.tf una vez que se conozcan los nombres de recursos.
 # ============================================================
 `,
   ];
@@ -324,26 +326,13 @@ function generateOutputsTf(
     if (!provider) continue;
 
     const resourceName = sanitizeName(category.categoryName);
+    const svc = category.services.find((s) => s.provider === provider);
 
-    if (provider === "AWS") {
-      lines.push(`output "${resourceName}_provider" {
-  description = "Proveedor seleccionado para ${category.categoryName}"
-  value       = "AWS"
+    lines.push(`output "${resourceName}_selected" {
+  description = "Servicio seleccionado para la categoría ${category.categoryName}"
+  value       = "${provider} — ${svc?.serviceName ?? "N/A"} (~$${svc?.monthlyEstimatedCost.toFixed(2) ?? "0.00"}/mes)"
 }
 `);
-    } else if (provider === "Azure") {
-      lines.push(`output "${resourceName}_resource_group" {
-  description = "Grupo de recursos de Azure para ${category.categoryName}"
-  value       = azurerm_resource_group.${resourceName}_rg.name
-}
-`);
-    } else if (provider === "GCP") {
-      lines.push(`output "${resourceName}_instance_id" {
-  description = "ID de instancia GCP para ${category.categoryName}"
-  value       = google_compute_instance.${resourceName}.instance_id
-}
-`);
-    }
   }
 
   return lines.join("\n");
@@ -451,6 +440,30 @@ terraform destroy
 ---
 *Generado por [Cloud Panel](https://github.com/j3rryg3/cloudPanel) — ${new Date().toISOString().split("T")[0]}*
 `;
+}
+
+// Archivos de soporte: todo excepto main.tf (que genera el LLM en el Paso 2).
+export interface SupportingTerraformFiles {
+  "providers.tf": string;
+  "variables.tf": string;
+  "outputs.tf": string;
+  ".gitignore": string;
+  "README.md": string;
+}
+
+export function generateSupportingFiles(
+  data: ArchitectureResponse,
+  selectedServices: SelectedServices,
+  totalCost: number
+): SupportingTerraformFiles {
+  const providers = getProviders(data.categories, selectedServices);
+  return {
+    "providers.tf": generateProvidersTf(providers),
+    "variables.tf": generateVariablesTf(providers),
+    "outputs.tf": generateOutputsTf(data.categories, selectedServices),
+    ".gitignore": generateGitignore(),
+    "README.md": generateReadme(data, selectedServices, totalCost),
+  };
 }
 
 export interface TerraformFiles {

@@ -9,11 +9,13 @@ interface ArchitectureState {
   isLoading: boolean;
   error: string | null;
   architectureData: ArchitectureResponse | null;
+  currentPrompt: string;
   selectedServices: SelectedServices;
   totalMonthlyCost: number;
 
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setCurrentPrompt: (prompt: string) => void;
   setArchitectureData: (data: ArchitectureResponse) => void;
   selectService: (categoryName: string, provider: Provider) => void;
   reset: () => void;
@@ -47,12 +49,15 @@ export const useArchitectureStore = create<ArchitectureState>((set, get) => ({
   isLoading: false,
   error: null,
   architectureData: null,
+  currentPrompt: "",
   selectedServices: {},
   totalMonthlyCost: 0,
 
   setLoading: (loading) => set({ isLoading: loading }),
 
   setError: (error) => set({ error }),
+
+  setCurrentPrompt: (prompt) => set({ currentPrompt: prompt }),
 
   setArchitectureData: (data) => {
     const defaultSelections = computeDefaultSelections(data.categories);
@@ -84,6 +89,7 @@ export const useArchitectureStore = create<ArchitectureState>((set, get) => ({
       isLoading: false,
       error: null,
       architectureData: null,
+      currentPrompt: "",
       selectedServices: {},
       totalMonthlyCost: 0,
     }),
